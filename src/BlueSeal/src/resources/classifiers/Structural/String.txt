@@ -1,0 +1,14 @@
+java.lang.String charAt
+java.lang.String concat
+java.lang.String copyValueOf
+java.lang.String format
+java.lang.String intern
+java.lang.String join
+java.lang.String replace
+java.lang.String split
+java.lang.String subSequence
+java.lang.String subString
+java.lang.String toCharArray
+java.lang.String toLowerCase
+java.lang.String toUpperCase
+java.lang.String valueOf

@@ -1,0 +1,86 @@
+\documentclass[conference]{IEEEtran}
+%\usepackage{natbib}
+\usepackage[square,sort,comma,numbers]{natbib}
+\usepackage{graphicx,amsmath,color,url,balance}
+\usepackage{paralist}
+
+%%for inserting code snippet
+\usepackage{listings}
+\usepackage{color}
+\usepackage[section]{placeins}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\renewcommand{\lstlistingname}{Code}
+
+\lstset{frame=single,
+  language=Java,
+  showstringspaces=false,
+  columns=flexible,
+  belowcaptionskip=1\baselineskip,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3,
+  captionpos=b
+}
+
+\renewcommand{\ttdefault}{cmtt}
+\renewcommand{\encodingdefault}{OT1}
+\DeclareFontFamily{\encodingdefault}{\ttdefault}{\hyphenchar\font=`\-}
+\hyphenation{an-d-ro-id An-d-ro-id-Ma-ni-fe-st Pro-ject Con-tent-Pro-vi-der}
+
+\def\bibfont{\small}
+
+%make latex layout figures better
+
+%\renewcommand{\topfraction}{0.85}
+%\renewcommand{\textfraction}{0.1}
+%\renewcommand{\floatpagefraction}{0.85}
+\begin{document}
+%\newfont{\mycrnotice}{ptmr8t at 7pt}
+%\newfont{\myconfname}{ptmri8t at 7pt}
+%\let\crnotice\mycrnotice%
+%\let\confname\myconfname%
+
+\clubpenalty=10000 
+\widowpenalty=10000 
+
+\newcommand{\bs}{BlueSeal}
+\newcommand{\todo}[1]{\textcolor{red}{(TODO: #1)}}
+
+\title{String Analysis Research Plan}
+
+\author{
+\IEEEauthorblockN{Justin Del Vecchio}
+\IEEEauthorblockA{University at Buffalo, The State University of New York\\
+jmdv@buffalo.edu}
+}
+
+
+\maketitle
+
+\input{abstract}
+\input{introduction}
+%\input{motivation}
+%\input{impl}
+%\input{results}
+%\input{related}
+%\input{conclusion}
+
+
+
+\balance
+
+\bibliographystyle{IEEEtran}
+%\raggedright
+%\bibliography{ase15}
+
+\end{document}

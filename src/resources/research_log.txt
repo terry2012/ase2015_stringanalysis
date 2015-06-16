@@ -1,0 +1,479 @@
+17 March 2015
+
+
+Cleaned up HTML Output
+-----------------------------------------------
+Identified an issue where I was writing the results file as the sootmethod name.  However, there are dozens of duplicate method names (for example, clinit).  Resolved this by writing the method number as opposed to the name - this is indeed unique.
+
+Removal of Strings for Returns from HTML Output
+-----------------------------------------------
+<<Include in Section "What Is a String">>
+Simply removed all Strings that are created solely from Returns.  In one sense - this is good.  They should be identified by Interprocedural or may not be used.  However, they could be invoked via reflection.  So, maybe they should be kept.
+
+JInvoke Improvements
+-----------------------------------------------
+Added a lot of JInvoke improvements for additional String detection
+
+JAssignStmt Questions
+------------------------------------------------
+What do we add?  There are a lot in here
+Yes
+<com.google.android.gcm.GCMBaseIntentService: java.lang.Object LOCK> = class "com/google/android/gcm/GCMBaseIntentService"
+$r2 = virtualinvoke $r4.<android.content.Context: java.lang.Object getSystemService(java.lang.String)>("layout_inflater")
+$z0 = interfaceinvoke $r1.<android.content.SharedPreferences: boolean getBoolean(java.lang.String,boolean)>("ShowedCategoryHelp", 0)
+
+Missing
+$r6 = virtualinvoke $r3.<org.json.JSONObject: java.lang.String getString(java.lang.String)>("Market")
+$r6 = virtualinvoke $r3.<org.json.JSONObject: java.lang.String getString(java.lang.String)>("Zip")
+$r1 = staticinvoke <com.couponclipper.common.DataClasses.WebServices: java.lang.String doRawJSONCall(android.content.Context,java.lang.String,java.lang.String)>($r0, "GetUserLocationFromCityState", $r1)
+
+Probably - but requires 'running' the tree
+$r17 = virtualinvoke $r2.<java.lang.String: java.lang.String replace(java.lang.CharSequence,java.lang.CharSequence)>("=195", $r4)
+
+Interesting
+$r6 = virtualinvoke $r8.<java.lang.String: java.lang.String[] split(java.lang.String)>("_")
+
+Maybe
+$r6 = virtualinvoke $r1.<android.content.Context: java.lang.Object getSystemService(java.lang.String)>("location")
+$i1 = virtualinvoke $r2.<java.lang.String: int indexOf(java.lang.String)>("&")
+$r4 = staticinvoke <javax.net.ssl.SSLContext: javax.net.ssl.SSLContext getInstance(java.lang.String)>("TLS")
+$z1 = virtualinvoke $r4.<java.lang.String: boolean equals(java.lang.Object)>("SPLocationSearch_LatLongResult")
+$z0 = virtualinvoke $r10.<java.lang.String: boolean startsWith(java.lang.String)>("Prof")
+
+Flat out missing ...
+$r12 = virtualinvoke $r12.<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>("=")
+
+<com.flurry.android.u: java.lang.String toString()>
+$r4 = virtualinvoke $r1.<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>("[adLogs=")
+
+
+Approach to Identify Strings
+-----------------------------------------------
+<<Include in Paper Section "How to Identify Strings">>
+Initial approach to identify strings developed around example unit tests and typical methods to create strings.  Focused on development of logic structure in NetworkflowBackwardAnalysis to harvest strings.  This is a successful approach.  But, is there a way to cast a wider net.
+
+In one respect, yes, there is.  Simply create a filter to examine each unit and find each and every one that has "" within it.  This essentially identifies all Units that create strings.  Whether they are Strings or not.  
+
+This approach was applied after development of the HTML output framework.  An examination of the exposed Jimple for methods quickly identified that Strings were being missed.  This simple approach quickly identified a host of Strings - roughly 5%.  These were split across JAssignmentStmts and JInvokeStmts.  Jinvoke were easy to handle.  However, JAssignmentStmts were much more difficult.  
+
+The Difficulty of Unit Tests
+-----------------------------------------------
+There are simply so many combinations - it becomes very difficult to test.  An infinite number of call chains - maybe the sub-patterns could be identified but ... it would be hard and time consuming.
+Better to cast a wide net and start with a certain number.  As you identify deficiencies - get rough estimates of numbers.  Say you detected 698 before - they you identify a new case.  You are missing - 
+C:\blueseal\src\Examples\Taintdroid_APKs\com.couponclipper.SavvyShopper-1.apk
+896 Intra 906
+958 Inter 968
+351 missing 345 
+
+18 March 2015
+Approach to Classification
+-----------------------------------------------
+Classification of Strings is difficult to do.  First, identification of Strings is hard.  What constitutes a String.  But in this case, what is the semantic intent of the String?  In many cases, the String itself has semantic meaning.  A URL string for example.  Or a comment string.  Or a SQL string (maybe add as a table).
+
+But what about the underlying code that uses the String?  It too has a semantic bearning.  For example, a URL string used in a URL constructor is clearly a URL.  But what about a URL String written to a log file?  In this case, a classifier is needed that:
+1. Identifies the content of the string, and
+2. Identifies the context of 1's classification in light of how the string is accesses, utlizied, stored, etc. in the application.
+
+Method signature and clustering around that to identify classes of actions.  That would seem to be the best way.
+
+
+
+Types:
+Array
+$r7 = newarray (java.lang.Object)[9]
+
+
+
+
+18 March 2015
+SK - Try catch all strings that flow into Java and Kernel classes - non-application classes.  All strings used by non-applicaiton classes
+
+19 March 2015
+
+Code Obfuscation
+------------------------------------------------------
+<< Include in Section Limits to Classification >>
+Indeed, obfuscaters will hide the true semantics of the code.  But, typically not the string values.  See here:  http://stackoverflow.com/questions/4427238/hiding-strings-in-obfuscated-code
+So, can you detect the nature of the code with patterns????
+
+21 March 2015
+
+Reverse Lookup Tables and classification
+------------------------------------------------------
+<<Include in Section Classification Approach>>
+We creat a matrix where
+
+   |  method signature
+--------------------------------------------------
+str|
+str|
+str|
+
+This was difficult to implement - maybe a couple of days.  Uses a reverse look table (two way look-up).  Now - we need some way to classify this information....but do we need to do log scaling?
+
+Tfidf with LDA - not finegrained control enough.  And cluster technologies make you choose the number of clusters you want ... how do I know how many there are?????  We need precise control.
+
+Created a simple classification string that would:
+-findmatches
+-findnonmatches
+-come up with a score for both
+-but ... how to negotiate when there is scoring for both matches and nonmatches - have to come up with some composite score.  At this point - simply take the match score if it is twice as big as the nonmatch score 
+
+(2matches to 1nonmatch) = 2/3 = .66
+(3mathces to 2nonmatch) = 3/5 = .60
+
+
+Issues are - do we remove all instances of java.lang for more precise results.  But would that impact a ton of appends.
+
+Reaching a Clean-Up Point
+------------------------------------------------
+Goals for next week should be to clean up the issues here and the littered TODOs in the source and the failing tests.
+TODO - need to come up with scoring tests for this thing ...
+
+25 March 2015
+--------------
+
+Classification Hierarchy
+------------------------------------------------
+Once results are cluster - you must manually go through, examine and score.  Develop some type of ad-hoc hierarchy of types of strings.  For example
+
+Error Messages:
+_throwUnquotedSpace
+_skipComment
+
+Calls to 3rd Pary Libs:
+onEndSession
+
+Obfusctaion:
+md5 - String 1
+showURL - String 1
+f - String 6
+
+Screen Message:
+showTitleMessage - String 1
+dialog - String 3
+
+HashMap
+dialog - String 15
+
+WriteToDisk
+b -  String 2
+
+saveUserApproval
+saveUserApproval - String 1
+
+But this will take time!  For certain, it will take time.
+
+25 March 2015
+- 7 weeks to drop dead - come up with a timeline for this.
+
+- How much of this can we extract by hand.  Or, what type of questions can we ask programatically over this and what can we gain from it.
+Realistically we want to automate this as much as possible.  Will run on large code bases - so how do we do that. (URLs, file access, content providers)
+
+- Think about if there are commonalities across applications - to identify the presence of libs and common code across both.
+
+- Deobfuscate things by detecting things in stuctures that allow you to do it.
+
+- How best to apply this data and strategy to the domains we had initially set out to tackle
+  - network addresses for the sinks and sources for blueseal
+  - reflection 
+
+- Other usage of this string analysis
+
+Paper Structure
+-----------------
+- here is the string analysis
+- here is how much information you can gather
+- and it can power X,Y, and Z
+
+
+
+27 March 2015
+-------------------------------------------
+<<Include in Section "Utility in BlueSeal Framework>>
+Meeting with Feng
+
+1. - Interested in Strings for Content Provider ****
+http://developer.android.com/guide/topics/providers/content-providers.html
+
+http://developer.android.com/reference/android/content/ContentProvider.html
+
+- really interested in the query and the insert
+- these are the most interesting to get
+would want that when we invoke insert(URI ..) - what is that URI value
+
+2. Sometimes if you the system content provider - *** then it might not use the actual screen. But ... you would get static fields.
+- Contact information - system end point to get this information.  Sometimes they can use the build in Android 'static constant' to access that.  They can access the content provider if they can grab this string.  How many system ones does it try to access vs. the user one.
+Pscout - defines all the mappings
+http://pscout.csl.toronto.edu/
+
+
+<android.provider.Telephony$Sms$Outbox: android.net.Uri CONTENT_URI>
+<android.provider.Telephony$Sms$Outbox: - class
+android.net.Uri - variable type
+CONTENT_URI> - variable name 
+-> variable value would be interesting!
+
+Try and extract this map and find the values for it!!!
+
+THis is the real target but all are interesting to get:
+<android.provider.ContactsContract$DataUsageFeedback: android.net.Uri FEEDBACK_URI>
+<android.provider.ContactsContract$DataUsageFeedback: android.net.Uri FEEDBACK_URI>
+<android.provider.ContactsContract$RawContactsEntity: android.net.Uri CONTENT_URI>
+<android.provider.ContactsContract$RawContactsEntity: android.net.Uri CONTENT_URI>
+
+Differentiate between the Strings and the Fields
+Content Provider (URI strings) with Permissions 	Android 2.2.3 	Android 2.3.6 	Android 3.2.2 	Android 4.0.1 	Android 4.1.1
+Content Provider (URI fields) with Permission
+You can try the intents as well
+
+3. URLS ****
+Additionally:
+1. want all the URLs for networking.  This one can be combined to black/white lists (etc.) to figure out where it is going
+2. Classify all the URLs (not that bad to do!)
+3. Items to try: java.net.URL
+		 are there others?
+
+4. Reflection  **
+1. http://tutorials.jenkov.com/java-reflection/index.html
+2. String className = ... //obtain class name as string at runtime Class class = Class.forName(className); 
+INterested in the class name and in the method name.
+Class name will be in the class constant
+Method name will be in the String constant
+
+If you find an APK that is using this - what is the value of the String (where it be a literal or some set of operations to create a String)
+
+You will give me the statments:
+Input:
+- APK name
+- Unit - that is what I am given.  Give me the Unit and sometimes the parameter that I want.  "I am interested in this Unit and parameter 2".  But, we are also interested in types.  We are tyring to get:
+- The content provider API
+- API
+- Statment 
+- Paramter (first string parameter is of interest)
+-------> Return you the actual value (or best approximation of it).
+
+29 March 2015
+------------------------------------------------------
+Worked on implementing code for what Feng wants.  Did the following:
+// 1. Create URL objects in TestApplication
+// DONE!
+// 2. Ensure coverage for multiple constructor types
+// DONE
+// 3. Create API call that accepts the Unit & Method for the URL object and returns the String
+	STARTED
+	//   3a. Will need to find the graph that houses the Unit (might be tough ... less so if we get the Method)
+	//   3b. Will need to trace the graph to find the String object passed in as a parameter ... or rather trace back from it. Or rather find 
+	//       the graph that houses it as a root.
+	// 4. Send back the String (or ops?) that represent the String.
+
+One item here was how the init() function works for classes.  I knew that I needed to handle this case - figured it would be easy to do.  But - in actuality - required a bit of work.  Still not finished with it.
+
+Also, the Unit as verticies thing needed to be addressed.  Basically, it did not all differentiation bewteen the Strings in the object.  So .... that was hard.  Would you rather evaluate a tree and realize it has three strings in it ... or have it as three separate strings.  Went for the later (or going to go there :) )
+
+
+Paper Outline:
+
+Abstract
+	- What are we trying to do
+	- How is it done presently and what are limitations
+	- What is new about approach
+	- Implications if successful
+I - Introduction
+	- Overview of the string analysis
+	- Overview of how much information you can gather
+	- and that collection of this data can, as a plugin, power X,Y, and Z
+	- make this Android specific - sooo many things are defined by static strings
+
+II - String Detection Goals
+	A'. Motivation
+		- Why do we need this
+		- motivating scenarios
+			- static analysis of Android is popular
+			- due to security stuff
+			- most of the interesting stuff is from URIs and URLs
+			- each of these is uniquely identified by a String
+			- and we need to understand Strings
+			- and it relies heavily - which is also defined by Strings
+			- So precise String analysis is very important
+			- What are the benefits they are going to get - what should get them excited.
+		- the context that we want to talk about String analysis
+	A. Collection of Application Strings
+		- Cast a wide net 
+		- Collect creation of every string 
+	B. Background: SOA Pointed String Detection
+		- Defect warnings
+		- Exploits
+	C. Background: SOA Comprehensive String Detection
+		- Does it even exist?
+	D. Usefulness of Collected Strings
+		- classification and reach back
+
+III - Algorithm Design
+	A. What is a String?
+		- Identify the different strings that can occur.
+		- Discuss Strings that are parts of Interprocedural and Intraprocedural
+		- Can you ever get a 'count' of the number of Strings used by an application - all a matter of semantics
+		- Use of the most liberal semantics for String collection
+	B. Use of Soot as Vechicle
+		- Very minimal intro here on Soot - what it can be used
+		- We planned to use Interproc and Intraproc
+	C. Where to Look for Strings?
+		- Need an idea of how to find Strings - they can start off in so many ways
+		- Top down approach 
+			- trace from the inception of a string down from a type.  For example, a URL, a PrintStream
+			- Created example app and identified what it would look like
+		- Bottom up approach
+			- At some point, every literal String in Soot is simply whatever is between ""
+			- Examined the Soot Units to find those with "" - and identify those
+			- Mostly due to not handling multiple arguments, etc.
+		- This process will be continually improved - but key is that it is at a point where no major gaps exists
+	D. Algorithm Design and Implementation
+		- Talk about Intraprocedural
+		- Talk about Interprocedural
+			- Talk about graph connecting, etc.
+		- Talk about classification of strings
+			- Automated approach
+			- Discuss limits to classification 
+				- Automated will never perfectly precise
+				- Time to do across all not there yet
+				- Time to do per algorithm is
+				- Need to define a taxonomy of types (can do in time for paper?? Possibly a rudimentary one)
+		- Talk about Blueseal plugin for custom or fine-grained classification
+			- Stress this is modular for reuse by others
+		- Talk about the HTML results for analysis
+	E. Limitations
+		- Discuss open issues
+		- Ensure to differentiate between doable improvements (those that require time) vs. challenging (those that require experimentation)
+		- Classification taxonomy needs more exposure - discussion
+		- Parallelism could be GREATLY leveraged
+			- Not the analysis per se
+			- Creation of the strings
+			- Classification of the strings
+IV- V - VI - This should get merged into results.  This is broadly right but how do we go about doing that.
+IV  - 	Algorithm Test & Validation
+	A. Unit test approach
+			- Unit tests detected changes
+			- Absolutely necessary for any refactoring.  Without this - lost
+	B. APK test approach for grounding
+		- Results page
+			- Visually seeing HTML results immediately improved troble shooting and will continue to do so.
+			- Ran 10 APKs - then 100
+V -	Overview of Collected Information
+	A. Review of Output application
+		- Summary page and graphics
+		- Collection of running time and average across application
+		- Discuss the 
+	B. Runtime Analysis
+		- Run on 30 applications (TaintDroid)
+		- Discuss best and worst case running times
+		- Possibly develop mathematical model that indicates per APK running time
+		- memory usage
+	B. Computationally Reusable Collection
+		- Discuss stored as Jung Graphs
+		- Eaisly implemented for reuse
+		- Would be ideal for a Big Data storage collection (Hbase, Accumulo) for lookup
+VI - 	Applicability to BlueSeal (Case Studies)
+	A. A Wide Net to Answer Specific Questions
+		- Intrested in strings written to Logs
+		- Interested in strings for file access - how are they stored
+		- Interested in percentage of Strings that are statically defined but used to access HashMaps as keys 
+		- BlueSeal has four cases
+	B. BlueSeal Cases
+		- URLs
+		- COntext
+		- Reflection
+		-
+	C. BlueSeal API With Examples
+		- Usage to pull out Strings for URLs
+		- Usage to pull out Strings for COntent Providers
+VI' Threats to Validity
+	A. ? - Take a look at Fengs paper.  
+		- Under what circumstances would the results in here be invalid
+		- another way of listing limitations
+		- Places the results into a more real world context.
+		- How did you limit the threats to validity 
+			- Past BlueSeal papers
+			- manual inspection and applicability
+VI Next Steps
+	A. Parallelism - more applications
+	B. Better classification
+	C. UI is Runnable (you can supply apps via the UI and see results)
+	D. Logic is XML extensible so you caould swap in and out different items
+	E. More modules for reuse (like Blueseal one)
+
+
+Literature Review
+-------------------------------------------
+- Defect warnings
+- Exploits
+
+Key - see who cites the first article
+
+Search - "static analysis  string values  interprocedural"
+Static Analysis to find Injections: https://www.usenix.org/legacy/event/sec06/tech/full_papers/xie/xie_html/
+Precise Analysis of String Expressions - http://link.springer.com/chapter/10.1007/3-540-44898-5_1
+
+8] Nurit Dor, Michael Rodeh, and Mooly Sagiv. Cleanness checking of string ma-
+nipulations in C programs via integer analysis. In
+Proc. 8th International Static
+Analysis Symposium, SAS ’01
+, volume 2126 of
+LNCS
+. Springer-Verlag, July 2001
+
+ Static anal-
+ysis for dynamic XML
+
+Search - "static analysis  find all strings interprocedural"
+
+Search - "static analysis interprocedural URL"
+A Comparative Study of Industrial Static Analysis Tools - http://www.sciencedirect.com/science/article/pii/S1571066108003824
+
+TOR
+http://www.pcworld.com/article/2845272/biggest-ever-tor-raid-hits-410-underground-sites-17-arrested.html
+http://securitywatch.pcmag.com/security/329434-how-the-fbi-took-down-silk-road-2-0-and-400-other-dark-web-sites
+
+1 April
+------------------------------------------
+1. Create a timeline that explains how you can get this done in the next few weeks.
+2. May be worthwhile to have a main group meeting but also more one-on-one meetings
+3. Seems how we use String analysis vs. how we do String analysis.  We need to see if our technique is adding something new or not.  It is going to be the usage of this that will be key.  For Android - how we get it used by this. In this case - it is even more important to focus on the results and start finding stuff.  The writing itself will be determine by the results.  
+
+
+
+You could put something in here to just cut off on URLs
+
+Timeline
+// half way there - the code is working but not much else!
+1. Get init working with test
+//obnoxious ... you have to do it both ways.  Connect from the calling method to calle and the reverse.  From the callee to the calling method.
+// got it working but ... it won't print a string for a static variable
+Left off like this
+1. Want to examine the onCreate
+2. You want to find the one for the parameter
+3. You want to examine the first part of it - where it calls a method that points out (maybe the code is there already?)
+4. You want to find that method and examine it's Jung graphs and find one that has a parameterRef
+
+2. Get parameter passing to work with test
+3. Get int parameter arg working
+4. Solve error
+5. Figure out how to print just the string
+5. Get test applications working (android ones)
+
+
+filetype:java site:github.com java.net.URL android
+
+URL Bearing Apps:
+"java.net.URL" android - on github
+https://github.com/google/picview-for-android
+C:\Users\delvecchio\git\Android-Flashcards\.git
+C:\Users\delvecchio\git\android-BlogReader\.git
+https://github.com/RadioStudent/RadioStudent-Android.git
+https://github.com/digitalbias/scriptures.git
+https://github.com/mcatanmay/GpodRoid.git
+https://github.com/PenguinK/NewCityLife.git
+https://github.com/jiashi1208/chinabee.git
+https://github.com/shash007/People-Search-on-Social-Networks-using-Face-Recognition.git
+
+https://github.com/liquidz/collepi-android.git

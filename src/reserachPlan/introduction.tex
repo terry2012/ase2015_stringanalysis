@@ -1,0 +1,47 @@
+\section{Introduction}
+\label{sec:introduction}
+
+ 
+This paper has the following three contributions:
+
+\begin{itemize}
+\item \textbf{Task 1 Push Finalized Paper Results} - Tag code for ASE 2015 paper.  Assemble results and provide on BlueSeal site as a gzipped file.  Requires assembly of final composite Excel file and validation of Unit tests.
+\item \textbf{Task 2 Solve Unfulfilled String Graphs} - An incomplete string graph is when a backward flow analysis of a passed parameter fails at some point.  This is typically due to not handling some specific edge case - for example a string that is created from a byte array.  It is easy to detect incomplete string graphs but time consuming to debug and catch.  The goal is to solve at least one case each week - these take approximately 4 hrs to solve.
+\item \textbf{Task 3 Iteration Over All Strings in Malgenome} - We identified a lot of interesting patterns for Intents, Reflection, and URLs.  Are these patterns evident in other strings as well?  For example, if we included logging statements would we also see this pattern?  This task would include application of the classifiers to type strings based on the root nodes types.  This task will take longer to run due to casting a wide net to capture as many strings as possible.
+\item \textbf{Task 4 Review Original Blue Seal Results} - Review the original Blueseal results.  Outcome of this task will be development of a unified code base that can enable better precision analysis between both developed algorithms once unified into one.
+\item \textbf{Task 5 Statistical Analysis of String Characteristics Spreads} - Develop statistical analysis of string characteristics for Malgenome and PlayStore applications.  Develop R based scripts that identify average size of strings for types, average number of calls, etc.  To date we have not done a statistical analysis across all strings to create patterns or identify anomalies. 
+\item \textbf{Task 6 Find Externally Identified Strings} - We have identified strings that are defined in code itself.  For example class fields or statically defined strings.  We need to examine how strings are harvested from external resource files or how they are obtained from objects (for example toString() on objects is commonly used - is this done for obfuscation purposes?)  There is existing code in Blueseal to do this and Justin will work with Feng to ensure reuse.
+\item \textbf{Task 7 Analysis Malware Families} - Decompose the Malgenome corpus into the 44 families and perform analysis upon that.  Use this to enhance Tasks 3 and 5.
+\item \textbf{Task 8 Find Other Conferences} - Periodically search the Internet for other software engineering conferences that may be good venues to submit and present at.  Lukasz suggests looking at Microsoft and the impact factor it assigns to conferences.
+\item \textbf{Task 9 Results Release} - Develop artifacts for the manually validated code detected as malicious.  Provide them out on the Blueseal site as a download - something other researchers can use and access.  We will need to provide a format for the results and decide what the outputs are.
+\end{itemize}
+
+The table below proposes a timeline for the tasks.
+
+\begin{tabular*}
+{0.45\textwidth}{ l | l   }
+  \hline
+  Task & Date \\
+  \hline
+  {1 Push Results}  & June 4  \\
+  \hline
+  {2 Unfulfilled Graphs}  & Weekly  \\
+  \hline
+  {3 All Strings}   & June 18  \\
+  \hline
+  {4 Integration}  & July 30  \\
+  \hline
+  {5 Statistical Analysis}   & July 16  \\
+  \hline
+  {6 External Strings}  & August 13  \\
+  \hline
+  {7 Other Malware}  & August 27  \\
+  \hline
+  {8 Conferences}  & July 30  \\
+  \hline
+  {9 Results Release}  & July 30  \\
+  \hline
+\end{tabular*}
+
+%%  LocalWords:  Android app apps malware API IDs APIs Android's
+%%  LocalWords:  MalGenome

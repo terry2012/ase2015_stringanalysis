@@ -1,0 +1,240 @@
+\section{Results}
+\label{sec:results}
+Development and initial validation of the algorithm was performed using unit
+test and gold standard Android apps obtained from GitHub.  Unit test APKs were
+designed to test the validity of the inter-procedural algorithm, especially with
+respect to chaining string creation graphs for parameter and return values.
+Precision and recall metrics were developed for the gold standard GitHub apps
+with respect to total number of \texttt{URL} objects created and for each
+created object the number of method calls that contributed to the strings
+creation.  
+
+The algorithm was next tested on a small subset of the MalGenome apps.
+Validation of results for MalGenome required a different test methodology as
+source code was not available.  All \texttt{URL} objects were identified by
+inspection of Soot Unit objects.  Manual tracing of string creation was
+performed to identify and resolve issues with the string analysis algorithm.
+Initial version of output formats used in the following aggregate analysis
+section were developed and perfected to capture necessary information.  Manual
+inspection of MalGenome apps solidified the string analysis algorithm
+implementation and this inspection process continued as analysis results
+identified the need to capture additional information for customized output
+formats.
+
+\subsection{Benchmarks}
+Two sets of Android apps were used for benchmarking;  the MalGenome corpus of
+malicious apps consisting of 1042 apps and the Google Play corpus consisting of
+517 apps.  Both sets compliment one another as they contain a broad spectrum of
+apps from those relatively small in size, hundreds of KBs, to larger apps that
+are in the 10s of MBs.  The string analysis algorithm was fitted with a threaded
+driver class that allowed for multiple, concurrent analysis executions.  The
+MalGenome corpus was processed in six hours and Google Play in ten hours using a
+thread pool of size five.  Interesting to note is that across all equal-sized
+apps, Google Play apps take longer to process than malicious apps.
+
+Multiple output formats were generated to enable the aggregate analysis of results.  These included a tabular view of all strings detected by the analysis algorithm, a graphical view of the Soot Units used in string creation, values and counts of all reflection and \texttt{URL} string values across all apps, and counts of all method calls across all apps.  These four output types provided a great deal of information about string creation and contributed to identification of the high level observations discussed in the following subsections.
+
+\subsubsection{Creation of \texttt{URLs}}
+\texttt{URL} creation presents a wealth of information that may be used to
+categorize the behavior of MalGenome and Goolge Play apps.  Consider
+Table~\ref{table:up} that shows our tool's results for \texttt{URL} parameters
+for both MalGenome and Google Play apps.  Provided are the top ten parameters
+identified for \texttt{URL}s constructed in these apps along with counts (Note
+that for brevity, we only present \texttt{java.net.URL} objects).  Immediately
+it is evident that while Google Play apps provide information about timestamp,
+platform, and app ID, malicious apps are interested in passing information with
+respect to IMSI, ICCID, and telephone number.  Some overlap does exist between
+arguments where \&timestamp and \&p1 trace to Java Date objects used to collect
+the timestamp when the \texttt{URL} is sent.
+
+\begin{table}[t]
+  \begin{center}
+    {\small
+\begin{tabular}{|l|c|l|c|}
+\hline
+\multicolumn{2}{|c|}{{\bf MalGenome}} &    \multicolumn{2}{c|}{{\bf Google Play}} \\
+
+\bf{Parameter} & \bf{Total} & \bf{Parameter}    & \bf{Total}\\
+\hline
+\&p1=     & 208	  & \&c=    & 115\\
+\&imsi=   & 109   & \&uid=        & 48\\
+\&ca=    & 99   & \&game=  & 33\\ 
+\&ac=  & 99   & \&udid= & 29\\
+\&shid=    & 99	  & \&app\_id= & 27\\
+\&err=	  & 98	  & \&s=        &	22\\
+\&tel=     & 96	  & \&timestamp=        & 22\\
+\&iccid=     & 93	  & \&sid=      & 21\\
+\&pid=   & 87   & \&locale=      & 21\\
+\&sim=	  & 75	  & \&platform=        & 20\\
+\hline
+\end{tabular}
+}
+\vspace{.1in}
+    \caption{Top \texttt{URL} Parameters}
+    \label{table:up}
+  \end{center}
+\end{table}
+
+
+The tool captures \texttt{URL}s that are discrete strings as well as strings that are a series of appends.  Analysis on the discrete strings yields a simple observation summarized in Table~\ref{table:sec}.  For the 1327 distinct, discrete strings identified for Google Play apps, 83 used https.  For the 413 identified for MalGenome only 3 used https.  All three cases were calls to mainstream \texttt{URL}s---Facebook and MySpace.  This simple observation demonstrates that the authors of malicious apps are unconcerned with encryption of the actual transfer of content. 
+
+\begin{table}[t]
+  \begin{center}
+    {\small
+\begin{tabular}{|l|c|c|}
+\hline
+          & http:// & https:// \\
+\hline
+Google Play & 1244    &	83 \\
+MalGenome & 410     &	3 \\
+\hline
+\end{tabular}
+}
+\vspace{.1in}
+    \caption{Usage of Secure and Insecure http:// Connections}
+    \label{table:sec}
+  \end{center}
+\end{table}
+
+While unconcerned with encryption of the transfer of content, malicious app
+developers are extremely concerned with encryption of the IP addresses they
+connect to.  An examination of Google Play apps revealed that there were no
+instances of obfuscated or encrypted \texttt{URL} usage.  The same examination
+of MalGenome apps identified 100s of instances of obfuscated or encrypted
+\texttt{URL} usage.  Table~\ref{table:enc} demonstrates this, where the left
+column are methods that accept obfuscated text, typically the IP portion of the
+address, and are used in \texttt{URL} string creation. Zhou {\em et
+al.}~\cite{TechnicalReport} discuss some of these methods in greater detail.
+
+\begin{table*}[t]
+  \begin{center}
+    {\small
+\begin{tabular}{|l|c|c|c|}
+\hline
+\bf{Method}	& \bf{Total Calls} & \bf{Spread} & \bf{Example} \\
+\hline
+$\langle$com.keji.danti.util.ap: String a(String)$\rangle$                    & 489 & 163 & HoiprJbh9C519IF5HxiL9I0h8cMNuezDrebh7  \\
+$\langle$com.sec.android.providers.drm.Xmlns: String d(String)$\rangle$        & 356 & 178 & HoiprJbh9CVN9wnQ0w7O84FePwnYPJShH  \\
+$\langle$com.android.main.Base64: String encodebook(String,int,int)$\rangle$   &	264 & 22  & kl4ofgsmgeje5gko99s1fc2ofm  \\
+$\langle$com.sec.android.providers.drm.Onion: String a(String)$\rangle$ 	      & 178 & 178 & HoiprJbh9CVp9I0h8Cg1zKVO7CAO7CfaPJSQ  \\
+$\langle$com.keji.util.pd: String a(String)$\rangle$ 	                      & 126 & 42  & HoiprJbh9NDs9I0h8Cg1zKVO7CAO7CfaPJSQ  \\
+$\langle$com.keji.util.pf: String d(String)$\rangle$ 	                      & 120 & 40  & HoiprJbh9C519IF5HxiL9I0h8cMNuezDrebh7  \\
+$\langle$com.android.battery.a.pf: String d(String)$\rangle$ 	              & 43  & 43  & HoiprJbh9C519IF5HxiL9I0h8cMNuezDrebh7  \\
+$\langle$com.android.main.Base64: String encode(String,int)$\rangle$ 	      & 16  & 2   & alfo3gsa3nfdsrfo3isd21d8a8fccosm  \\
+$\langle$com.android.Base64: String encode(String,int)$\rangle$      	      & 8   & 2   & alfo3gsa3nfdsrfo3isd21d8a8fccosm  \\
+$\langle$ac: String d(String)$\rangle$ 	                                      & 4   & 2   & HoiprJbh9C519IF5HxiL9I0h8cMNuezDrebh7  \\
+$\langle$com.android.sf.adomb.Transitional: String d(String)$\rangle$          & 2   & 1   & HoiprJbh9CVp9I0h8Cg1zKVO7CAO7CfaPJSQ  \\
+\hline
+\end{tabular}
+}
+\vspace{.1in}
+    \caption{Encrypted \texttt{URL} Usage}
+    \label{table:enc}
+  \end{center}
+\end{table*}
+
+
+There are numerous observations related to this table.  The Example column
+indicates that obfuscation results tend to fall into two categories, those
+starting with the letter `Hoip' and those that do not.  This categorization
+corresponds to the method signatures in the Method column where all methods
+except \texttt{encode} and \texttt{encodebook} use `Hoip' strings.
+
+\subsubsection{Reflection}
+We have run our string analysis on both known MalGenome malware and Google Play
+apps to gather statistics on how malware and legitimate apps leverage
+\texttt{Reflection}. In table~\ref{table:reflection}, we show the gathered
+statistics. Here, we only show the most common ones based on the occurrence
+count. We observed that the most commonly used reflection strings are related to
+the Ads classes. As we manually examine the apps, it turns out some of the apps
+leverage reflection to request Ads from different libraries. Another family
+of interesting reflection strings is found in what appears to be an official
+Apache HttpClient library used by some apps. In this library,
+reflection is heavily used in many different places. However, after comparing
+the code to the official Apache library code, we have discovered that these two
+are completely different as the official library never uses reflection. The last
+interesting class of apps that use reflection involves a known malicious family
+called \texttt{Geinimi}. By examining the source code manually, we have
+discovered that the \texttt{Geinimi} code uses reflection to start a malicious
+service, which steals sensitive data, including \texttt{SMS}, \texttt{Device ID}
+and \texttt{Phone Number}, and sends it to a remote server.
+
+\begin{table}[t]
+  \begin{center}
+    {\small
+    \begin{tabular}{| l | l |}
+      \hline
+      \bf{Reflection Class String}&\bf{Count}\\ \hline
+	com.admogo.*(Ad) &	2323\\
+      \hline
+	com.waps.*(Ad) & 434\\
+      \hline
+	org.apache.commons.httpclient.* & 369\\
+      \hline
+	com.geinimi.custom.GoogleKeyboard & 342\\
+      \hline
+	com.google.ads.AdView & 163\\
+      \hline
+    \end{tabular}
+    }
+\vspace{.1in}
+    \caption{Reflection Usage in Android}
+    \label{table:reflection}
+  \end{center}
+\end{table}
+
+\subsubsection{Intent}
+Analysis was performed on intents for both MalGenome and Google Play with 4000
+intent calls in the former and 10000 calls in the latter.  Results were analyzed
+by grouping the string argument values provided to intents and sorting by
+frequency.  Table~\ref{table:intent} shows the result of this analysis.
+
+\begin{table*}[t]
+  \begin{center}
+    {\small
+\begin{tabular}{|l|c|l|c|}
+\hline
+\multicolumn{2}{|c|}{{\bf Google Play}} &    \multicolumn{2}{c|}{{\bf MalGenome}} \\
+
+\bf{Intent} & \bf{Total} & \bf{Intent}    & \bf{Total}\\
+\hline
+  android.intent.action.VIEW &  1866 & android.intent.action.VIEW & 1194\\
+  android.intent.action.SEND &  1038 & android.intent.action.WEB\_SEARCH & 331\\
+  android.intent.action.MAIN &  240 & com.android.settings.APP\_DEVELOPMENT\_SETTINGS & 266\\ 
+  android.media.action.IMAGE\_CAPTURE & 198 & android.intent.action.SEND & 198\\
+  com.android.vending.billing.MarketBillingService.BIND & 151 & 7xBDrIM1zvBOzKlOuCRIHcBlcy09KLuFiDRd3pMccY\_\_ & 179\\
+  com.android.music.musicservicecommand & 150 & 7xBDrIM1zvBOzKlO7CMO8WB0iyiFl3MPqpzq  &	171\\
+  com.google.android.c2dm.intent.REGISTER & 148 & com.myplayer.toService & 107\\
+  com.android.vending.billing.RESPONSE\_CODE & 141 & android.intent.action.CALL  & 81\\
+  com.android.vending.billing.PUR\_STATE\_CHANGED & 140 & android.intent.action.MAIN & 71\\
+  com.google.android.c2dm.intent.UNREGISTER & 90 & android.media.action.IMAGE\_CAPTURE & 63\\
+\hline
+\end{tabular}
+}
+\vspace{.1in}
+    \caption{Top Intent Identifiers in Android}
+    \label{table:intent}
+  \end{center}
+\end{table*}
+
+Several interesting conclusions can be drawn from the table.  The Google Play apps display an expected pattern of intent usage.  The VIEW intent is indicated by Google documentation to be the most used intent with the documentation also indicating that SEND and MAIN are popular.  There are also numerous intents related to billing, again expected for commercial apps.
+
+The MalGenome apps show a very different usage pattern.  They also make use of the VIEW intent as expected.  Second most popular is WEB\_SEARCH, used to make \texttt{URL} connections.  This intent ranks 39th in Google Play with 29 usages.  Next most popular is APP\_DEVELOPMENT\_SETTINGS, a non-mainstream intent with few references on the Internet.  No Google Play apps uses this intent. Next is the SEND intent which communicates information between apps, also popular in the 
+ apps.  The 5th and 6th ranked intents for MalGenome are encrypted strings.  As
+discussed earlier in this paper, use of these strings is clearly for malicious
+activities and is omnipresent in intents.
+
+An analysis of Google Play apps was performed to identify if those apps used
+encrypted strings.  One app was identified, \texttt{com.easy.batter.saver.apk},
+calling the encrypted string through \texttt{com.google.utils.NetworkUtil}.
+Though the namespace would indicate a trustworthy pedigree for the method, it
+turns out that it is not part of any standard Google API with few references to
+its existence.
+
+%%  LocalWords:  MalGenome Android malware apps Google Play HttpClient
+%%  LocalWords:  Geinimi com admogo waps GitHub APK interprocedural
+%%  LocalWords:  Google Play MBs app imisi iccid imsi uid ca ac udid kl
+%%  LocalWords:  shid tel sid pid sim https Facebook MySpace http int
+%%  LocalWords:  MalGenome HoiprJ encodebook Br alfo Hoip xBDrIM CMO
+%%  LocalWords:  zvBOzKlOuCRIHcBlcy KLuFiDRd pMccY zvBOzKlO WB iyiFl
+%%  LocalWords:  MPqpzq NetworkUtil init

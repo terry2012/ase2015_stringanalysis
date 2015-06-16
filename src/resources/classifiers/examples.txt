@@ -1,0 +1,91 @@
+001717460c5ba78085eee9b7ed58bec94759e4c8.apk
+
+012339544c49584aace4e99d6c9013d1c79e38dc.apk
+Investigate
+<com.adwo.adsdk.i: com.adwo.adsdk.f a(android.content.Context,byte,byte)>
+Arg index: 0 specialinvoke r42.<java.net.URL: void <init>(java.lang.String)>($r16)
+10823
+$r16 = $r25
+10824
+$r25 = new java.lang.String
+
+Dupe - 012339544c49584aace4e99d6c9013d1c79e38dc.apk
+
+01555033f037f7decc7fbfe968ae8522ea25fb45.apk
+Investigate
+<com.ju6.c: boolean b()>
+Arg index: 0 specialinvoke $r11.<java.net.URL: void <init>(java.lang.String)>($r8)
+23019
+$r8 = $r36.<com.ju6.b: java.lang.String d>
+23095
+$r8 = $r36.<com.ju6.b: java.lang.String d>
+23002
+$r8 = $r36.<com.ju6.b: java.lang.String d>
+23103
+$r8 = "audio/*"
+23099
+$r8 = "application/smil"
+23101
+$r8 = "image/*"
+23021
+$r8 = "text/plain"
+23003
+$r8 = "text/plain"
+23031
+$r8 = $r36.<com.ju6.b: java.lang.String c>
+23008
+$r8 = $r36.<com.ju6.b: java.lang.String c>
+23087
+$r8 = $r36.<com.ju6.b: java.lang.String e>
+23091
+Arg index: 0 specialinvoke $r11.<java.net.URL: void <init>(java.lang.String)>($r8)
+23017
+Arg index: 0 specialinvoke $r11.<java.net.URL: void <init>(java.lang.String)>($r8)
+23110
+$r8 = $r24.<com.ju6.a: java.lang.String b>
+23034
+$r8 = $r24.<com.ju6.a: java.lang.String b>
+23036
+$r8 = $r24.<com.ju6.a: java.lang.String a>
+23094
+Arg index: 0 specialinvoke $r11.<java.net.URL: void <init>(java.lang.String)>($r8)
+23115
+$r8 = virtualinvoke $r3.<java.lang.StringBuilder: java.lang.String toString()>()
+23585
+$r3 = new java.lang.StringBuilder
+23112
+$r8 = $r24.<com.ju6.a: java.lang.String a>
+23013
+$r8 = $r36.<com.ju6.b: java.lang.String e>
+23107
+$r8 = $r36.<com.ju6.b: java.lang.String c>
+23023
+$r8 = "application/smil"
+23007
+$r8 = "video/*"
+23006
+$r8 = "audio/*"
+23005
+$r8 = "image/*"
+23097
+$r8 = "text/plain"
+23025
+$r8 = "image/*"
+23004
+$r8 = "application/smil"
+23105
+$r8 = "video/*"
+23027
+$r8 = "audio/*"
+23029
+$r8 = "video/*"
+
+Investigate
+<com.adwo.adsdk.i: com.adwo.adsdk.f a(android.content.Context,byte,byte)>
+Arg index: 0 specialinvoke r42.<java.net.URL: void <init>(java.lang.String)>($r25)
+21659
+$r25 = r43
+21660
+r43 = new java.lang.String
+
+\01e066b6b43e30102d5046881c363a9f590a901b.apk

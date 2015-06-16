@@ -1,0 +1,20 @@
+
+\section{Conclusions and Future Directions}
+\label{sec:conclusion}
+In this paper we presented a tool for disambiguating strings within Android
+apps. Our tool performs a string analysis over an Android app,
+creating a graph-based representation of the code blocks used in generating 
+strings. An abstract interpretation of the graph yields a set of potential
+constructed strings. Our results indicate that many strings can be fully
+disambiguated (quantified) statically within Android apps. Reasoning
+about the disambiguated strings gives additional insights into the structure and
+purpose of an Android app.
+
+As part of our future work, we plan to integrate our string analysis engine into
+\bs~\cite{Blueseal}, a static data flow analysis tool we have built. Based on
+our preliminary results, we believe that our string analysis engine will improve
+the precision of \bs's flow analysis, specifically in identifying flows that are
+likely present in malicious code and conversely identifying when suspicious
+flows are in fact benign.
+
+%%  LocalWords:  IMIE Android apps app

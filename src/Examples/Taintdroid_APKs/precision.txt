@@ -1,0 +1,30 @@
+bbc.mobile.news.ww-1.apk: One DynamicEntryPoint skip(s)
+com.PancakeApps.LieDetector-1.apk: One CgTansformer skip(s)
+com.antivirus-1.apk: Dexpler exception
+com.aol.mobile.moviefone-1.apk: Dexpler exception
+com.apksoftware.compass-1.apk: Clean
+com.berobo.android.scanner-1.apk: Clean
+com.bestbuy.android-1.apk: Dexpler exception
+com.ceen.mangaviewer-1.apk: Clean
+com.chris.android.mydaysfree-1.apk: Two DynamicEntryPoint skip(s) 
+com.couponclipper.SavvyShopper-1.apk: Clean
+com.cute.wallpapers-1.apk: Clean
+com.datpiff.mobile-1.apk: Four DynamicEntryPoint skip(s)
+com.devuni.flashlight-1.apk: Three DynamicEntryPoint skip(s), two CgTansformer skip(s)
+com.duduapps.craigslistfree-1.apk: One DynamicEntryPoint skip(s)
+com.evernote-1.apk: Dexpler exception
+com.goldendoodlegames.android.probasketballstats-1.apk: Clean
+com.google.android.gms-1.apk: CHATransformer exception
+com.google.zxing.client.android-1.apk: Two CgTansformer skip(s)
+com.kfactormedia.mycalendarmobile-1.apk: Five DynamicEntryPoint skip(s), one CgTansformer skip(s)
+com.macropinch.pearl-1.apk: Three DynamicEntryPoint skip(s), two CgTansformer skip(s) 
+com.mobilityware.solitaire-1.apk: Two wrong signature skips(s)
+com.myspace.android-1.apk: Clean
+com.navten.horoscope-1.apk: Clean
+com.shazam.android-1.apk: Dexpler exception
+com.smoopa.client.android-1.apk: Four DynamicEntryPoint skip(s)
+com.stylem.wallpapers-1.apk: Clean
+com.sunflashlightapp.free-1.apk: Clean
+com.touchapp.scramble-1.apk: Four DynamicEntryPoint skip(s)
+com.zynga.scramble-1.apk: Dexpler exception
+org.me.mobiexpensifyg-1.apk: Zip read exception

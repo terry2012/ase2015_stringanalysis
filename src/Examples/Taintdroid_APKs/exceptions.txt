@@ -1,0 +1,30 @@
+bbc.mobile.news.ww-1.apk:
+com.PancakeApps.LieDetector-1.apk:
+com.antivirus-1.apk: Dexpler exception
+com.aol.mobile.moviefone-1.apk: Dexpler exception
+com.apksoftware.compass-1.apk:
+com.berobo.android.scanner-1.apk:
+com.bestbuy.android-1.apk: Dexpler exception
+com.ceen.mangaviewer-1.apk:
+com.chris.android.mydaysfree-1.apk:
+com.couponclipper.SavvyShopper-1.apk:
+com.cute.wallpapers-1.apk:
+com.datpiff.mobile-1.apk:
+com.devuni.flashlight-1.apk:
+com.duduapps.craigslistfree-1.apk:
+com.evernote-1.apk: Dexpler exception
+com.goldendoodlegames.android.probasketballstats-1.apk:
+com.google.android.gms-1.apk: CHATransformer exception
+com.google.zxing.client.android-1.apk:
+com.kfactormedia.mycalendarmobile-1.apk:
+com.macropinch.pearl-1.apk:
+com.mobilityware.solitaire-1.apk:
+com.myspace.android-1.apk:
+com.navten.horoscope-1.apk:
+com.shazam.android-1.apk: Dexpler exception
+com.smoopa.client.android-1.apk:
+com.stylem.wallpapers-1.apk:
+com.sunflashlightapp.free-1.apk:
+com.touchapp.scramble-1.apk:
+com.zynga.scramble-1.apk: Dexpler exception
+org.me.mobiexpensifyg-1.apk: Zip read exception

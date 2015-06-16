@@ -1,0 +1,12 @@
+java.lang.StringBuilder append
+java.lang.StringBuilder charAt
+java.lang.StringBuilder delete
+java.lang.StringBuilder deleteCharAt
+java.lang.StringBuilder getChars
+java.lang.StringBuilder indexOf
+java.lang.StringBuilder insert
+java.lang.StringBuilder replace
+java.lang.StringBuilder setCharAt
+java.lang.StringBuilder subSequence
+java.lang.StringBuilder subString
+java.lang.StringBuilder delete

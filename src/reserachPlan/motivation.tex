@@ -1,0 +1,154 @@
+\section{Motivation}
+\label{sec:motivation}
+
+In Android apps strings are used pervasively to uniquely identify Android specific constructs, to specify files and network addresses
+that an app uses, as well as to enumerate classes and methods invoked dynamically through the
+Java reflection APIs. Understanding both how strings are constructed in the code base as well as the concrete values the strings contain, is vital to
+the understanding of the apps themselves. Consider the following examples taken
+from real world apps, both malicious and benign.
+
+%\begin{itemize}
+
+%\item discuss the importance of strings in Android, provide background on Intents, CPs, reflection, URLs, and Files
+%\item show examples of how strings are used in Android and show that static analysis requires information on strings to better analyze the program. Show one example for URLs and another for Reflection
+  
+%\end{itemize}
+
+
+\subsection{URLs}
+Many developers make their data publicly available on Internet servers and provide an interface for extracting slices or sections of that data.
+\texttt{URL}s are heavily used in Android apps to communicate between clients and servers. Some apps gather users' phone data and send it
+to remote servers to request service content. Malware also takes advantage of this pattern to perform harmful actions.
+In order to protect users' privacy, many analyses are currently tracking what data is sent off the phone via the Internet.
+This, however, is not sufficient because it is not easy to distinguish malicious behavior from benign behavior. To differentiate malicious and
+benign behaviors, we must not only track {\em what} data is, but also {\em where} data is sent and {\em how}.
+To do this, an analysis engine must be able to track network \texttt{URL}s.
+The following example gives us a brief idea on how an \texttt{URL} object is
+constructed and used in an Android app.\\
+
+\begin{lstlisting}[caption={Android URL Construction Example}, label={urlexample}]
+private void execTask(){
+    ...
+  str2 = "http://" + Base64.encodebook(
+    "2maodb3ialke8mdeme3gkos9g1icaofm", 6, 3) +
+    "/mm.do?imei=" + this.imei;
+    ...
+  httpString = str2 + "&mobile=" + this.mobile;
+    ...
+  http=BaseAuthenicationHttpClient
+       .getStringByURL(httpString);
+    ...
+}
+\end{lstlisting}
+
+In the example, the app first creates a base \texttt{URL} string and appends additional
+data ( {\em e.g.} \texttt{IMEI} and \texttt{Phone Number}) to construct the complete \texttt{URL} object.
+Finally, the app sends the string out via a \texttt{HttpClient}. Even though it is common to append data
+to a \texttt{URL} string in benign apps, there are notable differences in the above example.
+One key difference is the obfuscation ({\em how}) of the IP address of the \texttt{URL} ({\em where}) via the {\em encodebook} method.
+Malicious apps show a far greater tendency than benign apps to obfuscate the IP component.
+In the example, the \texttt{URL} object is also used to exfiltrate the mobile number and \texttt{IMEI} ({\em what}), something benign apps
+do not perform.
+
+\subsection{Android Intents}
+\texttt{Intent} is one of the most heavily used inter-component communication mechanisms in Android.
+Android \texttt{Intent} provides a nice way for benign apps to communicate, but Android malware
+can also take advantage of this to perform malicious behaviors.
+Researchers have spent a great effort on analyzing \texttt{Intent} for Android inter-component communication~\cite{Octeau:2013:EIC:2534766.2534813}.
+To understand how an Android app works, we must discover the relation of components connected by intents.
+The following code example shows how intents are used in an app.\\
+
+\begin{lstlisting}[caption={Android System Intent Example}, label=systemintent]
+public void onReceive(Context context,Intent intent){
+  if(intent.getAction().equals(
+      "android.intent.action.BOOT_COMPLETED")){
+    intent = new Intent("android.intent.action.RUN");
+    intent.setClass(context, zjService.class);
+    context.startService(intent);
+  }
+  ...
+  while (true){
+    if(!intent.getAction().equals(
+      "android.provider.Telephony.SMS_RECEIVED")) break;
+    intent = intent.getExtras();
+  ...
+    msg[i] = SmsMessage.createFromPdu((byte[])intent[i]);
+    this.sms_code = msg[i].getOriginatingAddress();
+    this.sms_body = msg[i].getDisplayMessageBody();
+    WriteRec(context, "zjsms.txt", this.sms_code + "#" + this.sms_body);
+  ...
+  }
+}
+...
+private void uploadAllFiles(){
+  ...
+  upload.uploadFile("http://" 
+  + getKeyNode("dom","dom_v")
+  +"/zj/upload/UploadFiles.aspx?askId=1&uid="
+  + getKeyNode("uid","uid_v"),
+  "/com.creativemobi.DragRacing/files/zjsms.txt");
+   ...
+}
+\end{lstlisting}
+
+This example contains three types of intents.
+Firstly, the app catches the system \texttt{BOOT\_COMPLETED} intent and starts its service \texttt{zjService}.
+Additionally, it monitors two other system intents: \texttt{SMS} and \texttt{OUTGOING\_CALL}. We only show the \texttt{SMS} intent in the example.
+As observed from the example, each intent has its own unique string which the program uses to differentiate
+intents. There might be a large number of intents contained in a single
+app. Thus, it is important to not only identify all intents, but to infer connections between different program components
+in order to understand the behavior of the app. This is especially important for Android because
+many Android malware apps take advantage of system intents to start malicious code. The above example is from one of the 
+known Android malware. By monitoring the system intents, the app catches the incoming \texttt{SMS} and \texttt{Phone Call} and
+writes into local files. Later, it uploads these files into a remote server in the \texttt{zjService}.
+To understand the complete execution flow above, we must
+discover all the strings that define an intent first and then build up the correct flow of the program,
+which is needed for future analysis ({\em e.g.,} data flow analysis).
+
+\subsection{Java Reflection}
+Reflection is commonly used by programs to provide runtime support and is used pervasively in Android. 
+Since reflection is a dynamic feature, it is usually not handled by static analyses. However, precision of static analysis is critically hurt 
+if reflection is ignored completely. In this case, it is important to find the reflection statically defined by strings.
+The following Jimple (intermediate representation used by Soot and our tool) code example shows how reflection is used in Double Twist,
+a popular music player available in Google Play.\\
+
+\begin{lstlisting}[caption={Android Reflection Example}, label=reflectionexample]
+  $r4 = <com.doubleTwist.util.l: String a(String)>("c2VuZEJpbGxpbmdSZXF1ZXN0\n");
+  <com.doubleTwist.androidPlayer.lr: String i> = $r4;
+  $r4 = <com.doubleTwist.util.l: String a(String)>("c2VuZEJpbGxpbmdSZXF1ZXN0\n");
+  $r5 = <java.lang.Class: Class forName(String)>($r4);
+  $r2 = <com.doubleTwist.androidPlayer.lr: String i>;
+  $r6 = newarray (Class)[1];
+  $r6[0] = class "android/os/Bundle";
+  $r7 = $r5.<Class: reflect.Method getDeclaredMethod(String,Class[])>($r2, $r6);
+  $r8 = <com.doubleTwist.audio.AudioVolumeService: Object e()>();
+  $r9 = newarray (Object)[1];
+  $r9[0] = $r3;
+  $r8 = $r7.<java.lang.reflect.Method: Object invoke(Object,Object[])>($r8, $r9);
+\end{lstlisting}
+
+As observed above, the app loads a reflection object using an encrypted string.
+After that, it fetches the wanted method from reflection by using another encrypted string 
+and executes it by calling \texttt{invoke}.
+Clearly, it performs some abnormal actions as it obfuscates
+the class and method names loaded via reflection. This is one of the common patterns in
+malware we have observed during our string analysis.
+
+%%  LocalWords:  Android APIs CPs systemintent MyBoolService malware
+%%  LocalWords:  BroadcastReceiver onReceive paramContext paramIntent
+%%  LocalWords:  getAction AlarmManager getSystemService getBroadcast
+%%  LocalWords:  PendingIntent usedefinedintent MyAlarmReceiver apps
+%%  LocalWords:  startService MyService app urlexample execTask str
+%%  LocalWords:  equalsIgnoreCase localObject http encodebook maodb
+%%  LocalWords:  ialke mdeme gkos icaofm imei getStringByURL sendSMS
+%%  LocalWords:  BaseAuthenicationHttpClient destMobile getDestMobile
+%%  LocalWords:  HttpClient forName reflectionexample arrayOfString
+%%  LocalWords:  fetchMobileIpAddressAndMask getMethod waitFor int
+%%  LocalWords:  createSubprocess arrayOfInt BufferedReader readLine
+%%  LocalWords:  InputStreamReader FileInputStream FileDescriptor msg
+%%  LocalWords:  valueOf indexOf rmnet localException Boden's sms txt
+%%  LocalWords:  flowdroid httpString exfiltrate setClass zjService
+%%  LocalWords:  getExtras SmsMessage createFromPdu WriteRec zjsms
+%%  LocalWords:  getOriginatingAddress getDisplayMessageBody dom uid
+%%  LocalWords:  uploadAllFiles uploadFile getKeyNode Jimple android
+%%  LocalWords:  getDeclaredMethod newarray

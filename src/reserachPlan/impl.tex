@@ -1,0 +1,111 @@
+\section{Implementation}
+\label{sec:impl}
+
+Our string analysis prototype is being built into \bs, a data flow analysis
+framework we have developed~\cite{Blueseal}. It is publicly available, along
+with data sets, experimental results, and plotting scripts for download at
+\url{http://blueseal.cse.buffalo.edu}. \bs~itself is built on the
+Soot~\cite{Vallee-Rai:1999:SJB} bytecode optimization framework. Our string
+analysis runs three phases as follows.
+
+\subsection{Interprocedural Analysis}
+
+The first phase of our tool gathers relevant information on strings used in
+intents, files, URLs, and Java reflection. This is done through a backward
+inter-procedural flow analysis originating at relevant invoke statements of API
+calls, which the tool takes as input. The analysis itself is mostly standard,
+but leverages functionality from \bs~to recreate the Android app's call
+graph. Due to the structure of Android apps, not all method calls are in
+the default generated call graph. For more details on call graph reconstruction
+for Android, please refer to our previous work on BlueSeal~\cite{Blueseal}. 
+
+\subsection{Abstract Interpretation}
+
+The output of our first phase is a set of backward flows, where each flow is
+represented as a graph starting with a single root. This root for a backward
+flow graph is a string argument used in intents, files, URLs, or Java
+reflection. Thus, each graph is effectively a backward {\em slice} of a program
+that consists of the code used to construct a string of interest. This gives us
+an opportunity to analyze the {\em structural} properties of how strings are
+created and used; we perform an abstract interpretation over each graph in order
+to do this. As our results presented in Section~\ref{sec:results} show, in many
+cases this allows us to generate concrete string literals. Our abstract
+interpretation engine understands basic Java string construction APIs including
+the \texttt{StringBuilder} class.  
+
+\subsection{String Classification}
+%\todo{I think the following is not quite clear. Need to revise.}
+%The tool casts a wide net in its default state collecting information on every
+%string created by the application. This typically results in the creation of
+%thousands of string analysis graphs for moderately sized applications.
+%Customization of output string types is provided and users may define desired
+%types in terms of Java objects. For example, the tool can be set to harvest
+%strings known to be arguments to the java.net.URL class.  This classifies the
+%string natively as the associated Java object class such as URL, Intent, or
+%Reflection. 
+
+Once a graph is generated, we classify strings into multiple categories.
+Currently, we classify them into two categories; in the future, we will use
+more categories as we describe later. Nevertheless, our preliminary results in
+Section~\ref{sec:results} indicate that these two categories already lead us to
+some interesting observations. Our two categories are as follows.
+
+\begin{itemize}
+\item \textbf{Plain strings:} This category includes strings constructed using
+\texttt{String} and \texttt{StringBuffer} classes. These are perhaps the most
+frequently used classes to build a string and include convenient methods such as
+\texttt{replace}, \texttt{append}, and \texttt{substring}. 
+\item \textbf{Derived strings :} This category includes
+strings originated from sources other than string literals found in the code.
+For example, strings originated from \texttt{toString},
+\texttt{Class.forName}, or a string read from a configuration XML file all
+belong to this category.
+%\item \textbf{Obfusticated strings:} This category includes strings that are
+%obfusticated. Here, we use a regexes in conjunction with rules to determine if strings are obfuscated. The regexes examine the package and method names and predict the likelihood of obfuscation based up string length of namespace elements and repetition of characters.  Rules are implemented to run high precision regexes first - for example detection of a namespace and method combinations where all names are one character in length.  The process is iterative and in the absence of a match, less-precise regexes are run that increase the number of allowed characters in names.
+\end{itemize}
+
+%We perform a classification of the candidate strings after generation the sets
+%of strings passed to each relevant API invoke statement in the application.
+%Classification is based upon characteristics of the method calls used in string
+%construction and falls into three broad categories.  First is Structural with
+%classification based upon the use of \texttt{String} and \texttt{StringBuffer}
+%operations performed on strings such as \texttt{replace}, \texttt{append}, and
+%\texttt{substring}.  Second is Provenance with classification based upon the
+%point of origin for string values.  For example, did the value come for a
+%\texttt{toString} call on a formatted \texttt{Date} object or did it come from
+%an XML file in the resources folder.  Third is classification as to whether
+%obfuscated code was used in string creation.  Here, a simple regex is applied to
+%determine if method calls used obfuscated code. 
+
+In the future, we plan to test a number of different categories based on
+inferred properties and code characteristics our tool is currently able to extract. 
+We currently  count the number of class and
+static fields used in creation of string, the number of methods called in
+creation of string, especially where aggregated strings show deep nesting of
+method invocations to retrieve string parts, and graph patterns for constructed
+strings. The latter characteristic offers the possibility to match obfuscated
+code against know graph patterns to determine likely intent and semantics of
+operations performed.
+%Multiple code characteristics are captured and calculated that will contribute
+%to an enhanced classification system in the future.  These include a count of
+%the number of class and static fields used in creation of string, the number of
+%methods called in creation of string, especially where aggregated strings show
+%deep nesting of method invocations to retrieve string parts, and graph patterns
+%for constructed strings. The latter characteristic offers the possibility to
+%match obfuscated code against know graph patterns to determine likely intent
+%and semantics of operations performed.
+
+%\begin{itemize}
+
+%\item brief background on Soot
+%\item brief background on blue seal
+%\item interprocedural analysis
+%\item abstract interpreter for constructing strings
+%\item classifier for strings
+  
+
+%\end{itemize}
+
+%%  LocalWords:  Interprocedural interprocedural bytecode Android API
+%%  LocalWords:  APIs StringBuilder StringBuffer BlueSeal toString
+%%  LocalWords:  forName Obfusticated obfusticated regex

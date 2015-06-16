@@ -1,0 +1,54 @@
+\section{Related Work}
+\label{sec:related}
+
+To improve mobile app security and privacy, various systems have been proposed.
+For example, TaintDroid~\cite{TaintDroid} and VetDroid~\cite{VetDroid} apply
+dynamic taint analysis to monitor apps and detect runtime privacy leakage in
+Android apps. ScanDroid~\cite{ScanDroid} aims to automatically extract data flow
+policy from the manifest of an app, and then check whether data flows in the
+apps are consistent with the extracted specification. Alazab {\em et
+al.}~\cite{Alazab:2012:AMB} provide a dynamic analysis technique that runs apps
+in a sandbox and detects malicious apps. MockDroid~\cite{Beresford:2011:MTP} is
+a tool that protects users' privacy by supplying mock data instead of sensitive
+data. Aurasium~\cite{Xu:Security:2012} provides user-level sandboxing and policy
+enforcement to dynamically monitor an app for security and privacy violations.
+Notably, Aurasium does not require modifications to the underlying OS.
+CrowDroid~\cite{Burguera:2011:CBM} is an offline analysis over traces that can
+be leveraged to identify malicious apps through examining their behavior via
+crowdsourcing. Moonsamy {\em et al.}~\cite{Moonsamy:2012:TUI} provided a
+thorough investigation and classification of 123 apps using static and dynamic
+techniques over the apps' Java source code. Our own work,
+BlueSeal~\cite{Blueseal}, proposes a new permission mechanism by leveraging
+static data flow analysis to discover sensitive data usage and improves Android
+app security. PiOS~\cite{DBLP:conf/ndss/EgeleKKV11}, a static analysis tool for
+iOS, leverages reachability analysis on control-flow graphs to detect leaks.
+ComDroid~\cite{ComDroid} and Woodpecker~\cite{Woodpecker} expose the confused
+deputy problem~\cite{Deputy} on Android.
+
+
+%Malicious apps are known to steal data.  This is well documented.
+%
+%- BlueSeal
+%- ScanDal - ScanDal: Static analyzer for detecting privacy leaks in android applications J Kim, Y Yoon, K Yi, J Shin, S Center - MoST, 2012 - mostconf.org
+%- Using Static Analysis for Automatic Assessment and Mitigation of Unwanted and Malicious Activities Within Android Applications Leonid Batyuk, Markus Herpich, Seyit Ahmet Camtepe, Karsten Raddatz, Aubrey-Derrick Schmidt, and Sahin Albayrak Technische Universit at Berlin - DAI-Labor
+%
+%
+%<ToDo search> PiOS  [6]  presented  a  static analysis for Objective-C code and detected privacy leaks in iPhone  applications.  
+%<ToDo search> DroidRanger  [15]  and  Enck  et  al.  [8] extensively  studied  Android  market  applications  and  gave better  understanding  of  the  current  ecosystem.  
+%<ToDo search> TaintDroid[7] and 
+%<ToDo search> SCanDroid [11] are, respectively, dynamic and static analyzer detecting privacy leaks in Android applications.
+%<ToDO search> An Android Application Sandbox system for suspicious software detection Bläsing, T. ; DAI-Labor, Tech. Univ. Berlin, Berlin, Germany ; Batyuk, L. ; Schmidt, A.-D. ; Camtepe, S.A. 
+%FlowDroid: Precise Context, Flow, Field, Object-sensitive and Lifecycle-aware Taint Analysis for Android Apps Steven Arzt, Siegfried Rasthofer,  Christian Fritz, Eric Bodden
+%
+%
+%Most make mention of the use of Strings in the creation.  FOr example SCANDAL discusses URL creation
+%
+%Talks about the encryption of const strings within the applicaiton for the purpose of obfuscation. 
+%[]Dissecting Android Malware: Characterization and Evolution Yajin Zhou Department of Computer Science North Carolina State University yajin zhou@ncsu.edu
+
+
+
+%%  LocalWords:  app TaintDroid VetDroid apps Android ScanDroid al
+%%  LocalWords:  Alazab sandbox MockDroid Aurasium sandboxing PiOS
+%%  LocalWords:  CrowDroid crowdsourcing Moonsamy BlueSeal iOS
+%%  LocalWords:  ComDroid
